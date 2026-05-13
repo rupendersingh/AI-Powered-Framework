@@ -9,7 +9,7 @@ def _base_instruction():
         "Ensure JSON is syntactically correct.\n"
         )
 
-def scenario_generation_prompt(feature: str, context: str) -> str:
+def scenario_generation_prompt(feature: str, context: str, root_key: str) -> str:
     return f"""
 {_base_instruction()}
 
@@ -21,14 +21,13 @@ Context: {context}
 Return ONLY JSON:
 
 {{
-  "test_scenarios": [
+  {root_key}: [
     {{
       "title": "string",
       "steps": ["string"],
       "expected_result": "string",
       "priority": "High/Medium/Low",
-      "scenario_type": "Positive/Negative/Boundary"
-      
+      "classification": "Positive/Negative/Boundary"
     }}
   ]
 }}
@@ -53,7 +52,7 @@ STRICT RULES:
   - HIGH → core flow + security
   - MEDIUM → validation failures
   - LOW → minor edge cases
-- Scenario Type:
+- Classification:
   - POSITIVE -> Valid inputs, expected flow
   - NEGATIVE -> Invalid inputs, error handling
   - BOUNDARY -> Edge values, limits
@@ -67,15 +66,17 @@ STRICT RULES:
 - Do not output massive repeated strings.
   
 
-- Minimum 10 scenarios
+- Minimum 10 {root_key}
 - Output ONLY JSON
 """
 
-def edge_case_prompt(feature: str, context: str) -> str:
+def edge_case_prompt(feature: str, context: str, root_key: str) -> str:
     return f"""
 {_base_instruction()}
 
 You are a Senior QA Engineer focused on breaking the system using edge cases.
+
+- Generate realistic QA scenarios relevant to the provided feature and context.
 
 Feature: {feature}
 Context: {context}
@@ -83,12 +84,14 @@ Context: {context}
 Return ONLY JSON:
 
 {{
-  "edge_cases": [
+  {root_key}: [
     {{
       "title": "string",
       "steps": ["string"],
       "expected_result": "string",
       "priority": "High/Medium/Low"
+      "classification": "Positive/Negative/Boundary"
+
     }}
   ]
 }}
@@ -115,6 +118,17 @@ STRICT RULES:
   Example:
   - username length > 254 characters
   - password length < 8 characters
+
+- Priority:
+  - HIGH → core flow + security
+  - MEDIUM → validation failures
+  - LOW → minor edge cases
+- Classification:
+  - POSITIVE -> Valid inputs, expected flow
+  - NEGATIVE -> Invalid inputs, error handling
+  - BOUNDARY -> Edge values, limits
+  - Do not generate excessively long sample values.
+- Represent boundary values symbolically.
 
 - Do not output massive repeated strings.
 - Output ONLY JSON

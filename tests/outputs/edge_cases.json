@@ -1,0 +1,121 @@
+[
+    {
+        "title": "Extremely long username exceeding database field limit",
+        "steps": [
+            "Navigate to login page",
+            "Enter username with 255+ characters (e.g., 300 chars)",
+            "Enter valid password",
+            "Submit login form"
+        ],
+        "expected_result": "Request rejected before database insertion, no error stack trace exposed, generic error message returned",
+        "priority": "High",
+        "classification": "Boundary"
+    },
+    {
+        "title": "SQL injection payload in username field",
+        "steps": [
+            "Navigate to login page",
+            "Enter username: admin'-- OR '1'='1",
+            "Enter any password",
+            "Submit login form"
+        ],
+        "expected_result": "Input sanitized or rejected, authentication fails, no database error exposed, no unauthorized access granted",
+        "priority": "High",
+        "classification": "Negative"
+    },
+    {
+        "title": "Unicode emoji characters in password field",
+        "steps": [
+            "Navigate to login page",
+            "Enter valid username",
+            "Enter password containing emojis: 'p@ssw0rd\ud83d\udd25\ud83d\ude80'",
+            "Submit login form"
+        ],
+        "expected_result": "Password accepted if valid, properly encoded in storage, no encoding errors or truncation",
+        "priority": "Medium",
+        "classification": "Positive"
+    },
+    {
+        "title": "Whitespace-only credentials submission",
+        "steps": [
+            "Navigate to login page",
+            "Enter 50 spaces in username field",
+            "Enter 50 tabs and spaces in password field",
+            "Submit login form"
+        ],
+        "expected_result": "Input trimmed or rejected, authentication fails, no session created, no bypass through whitespace manipulation",
+        "priority": "Medium",
+        "classification": "Negative"
+    },
+    {
+        "title": "Concurrent parallel login requests with same credentials",
+        "steps": [
+            "Open 10 browser tabs simultaneously",
+            "Submit login request in all tabs at same timestamp",
+            "Use valid credentials across all requests",
+            "Monitor server response and session creation"
+        ],
+        "expected_result": "All requests processed safely, only one active session created, no race conditions, no duplicate accounts or sessions",
+        "priority": "High",
+        "classification": "Boundary"
+    },
+    {
+        "title": "Null byte injection in username",
+        "steps": [
+            "Navigate to login page",
+            "Enter username: admin%00testuser",
+            "Enter valid password",
+            "Submit login form"
+        ],
+        "expected_result": "Null byte stripped or rejected, authentication fails, no string truncation vulnerability exploited",
+        "priority": "High",
+        "classification": "Negative"
+    },
+    {
+        "title": "Extremely long password exceeding system limits",
+        "steps": [
+            "Navigate to login page",
+            "Enter valid username",
+            "Enter password with 10000+ characters",
+            "Submit login form"
+        ],
+        "expected_result": "Request rejected before processing, memory not exhausted, generic timeout or error returned, no DoS condition",
+        "priority": "High",
+        "classification": "Boundary"
+    },
+    {
+        "title": "Mixed encoding attack with double URL encoding",
+        "steps": [
+            "Navigate to login page",
+            "Enter username: %2561%2564%256d%2569%256e (double encoded 'admin')",
+            "Enter valid password",
+            "Submit login form"
+        ],
+        "expected_result": "Double encoding decoded safely, authentication fails for non-existent user, no bypass through encoding trickery",
+        "priority": "Medium",
+        "classification": "Negative"
+    },
+    {
+        "title": "Empty string submission with CSRF bypass attempt",
+        "steps": [
+            "Navigate to login page",
+            "Clear all form fields",
+            "Manually craft POST request with empty strings",
+            "Submit without CSRF token"
+        ],
+        "expected_result": "Request rejected, CSRF validation fails, no session created, no authentication bypass",
+        "priority": "High",
+        "classification": "Negative"
+    },
+    {
+        "title": "Special characters that break JSON parsing in API",
+        "steps": [
+            "Send raw API request with username: {\"admin\":true}",
+            "Include control characters: username with \\n\\r\\t",
+            "Submit login request directly to /api/login endpoint"
+        ],
+        "expected_result": "Input sanitized, JSON parsing errors handled gracefully, no server error exposed, authentication fails safely",
+        "priority": "Medium",
+        "classification": "Negative"
+    }
+]
