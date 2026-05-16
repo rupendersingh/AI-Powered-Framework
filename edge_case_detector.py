@@ -63,13 +63,6 @@ if __name__=="__main__":
             print(f"Edge Case {index}")
             print(f"Title: {scenario['title']}")
             print(f"Classification: {scenario['classification']}")
-            """print(f"Priority: {scenario['priority']}")
-            print(f"Steps:")
-            for step in scenario["steps"]:
-                print(f" - {step}")
-            
-            print(f"Expected Result: {scenario['expected_result']}")
-            print("-" * 50)"""
 
         # Step 4: Save to JSON file    
         with open("tests/outputs/edge_cases.json", "w") as file:

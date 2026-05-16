@@ -96,23 +96,41 @@ def repair_json(bad_output):
 
 def extract_json(response: str):
     """
-    Extracts first valid JSON object from LLM response
+    Extracts the largest valid JSON object from LLM response.
+    Handles greediness and common AI verbosity.
     """
-    # Try cleaning markdown first
-    clean_resp = re.sub(r'^```[a-zA-Z]*\n|```$', '', response.strip(), flags=re.MULTILINE).strip()
+    response = response.strip()
+    
+    # 1. Try direct parse
+    try:
+        return json.loads(response)
+    except:
+        pass
+
+    # 2. Try cleaning markdown markers
+    clean_resp = re.sub(r'^```[a-zA-Z]*\n|```$', '', response, flags=re.MULTILINE).strip()
     try:
         return json.loads(clean_resp)
     except:
         pass
 
-    # Try extracting JSON block
-    match = re.search(r"\{.*\}", response, re.DOTALL)
-    if match:
-        try:
-            return json.loads(match.group())
-        except:
-            pass
-
+    # 3. Iterative search for the largest valid JSON block
+    start = response.find('{')
+    if start != -1:
+        # Try from the end of the string backwards
+        for end in range(len(response), start, -1):
+            if response[end-1] == '}':
+                candidate = response[start:end]
+                try:
+                    return json.loads(candidate)
+                except:
+                    # If it looks like truncation, try to repair
+                    for closure in ['"', '"}', '"]}', '"}]}', '}', ']}', '}]}', '}]}]}']:
+                        try:
+                            return json.loads(candidate + closure)
+                        except:
+                            continue
+    
     raise ValueError(f"No valid JSON found. Raw output snippet: {response[:200]}...")
 
 
@@ -129,7 +147,7 @@ def generate_openrouter_response(prompt: str) -> str:
     payload = {
         "model": "poolside/laguna-xs.2:free",
         "messages": [{"role": "user","content": prompt}],
-        "temperature": 0.2
+        "temperature": 0.2,
     }
 
     try:

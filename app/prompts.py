@@ -1,7 +1,7 @@
 
+import json
 def _base_instruction():
     return (
-        "You are a Senior QA Automation Engineer.\n"
         "You must return ONLY valid JSON.\n"
         "Do NOT include explanations, notes, or any text outside JSON.\n"
         "The response must start with '{' and end with '}'.\n"
@@ -89,7 +89,7 @@ Return ONLY JSON:
       "title": "string",
       "steps": ["string"],
       "expected_result": "string",
-      "priority": "High/Medium/Low"
+      "priority": "High/Medium/Low",
       "classification": "Positive/Negative/Boundary"
 
     }}
@@ -163,3 +163,56 @@ STRICT RULES:
   - LOW → minor UI issue
 - Output ONLY JSON
 """
+
+def build_api_test_prompt(api_details)-> str:
+  prompt = f"""
+  {_base_instruction()}
+
+  You are a Senior QA api testing expert designing precise and production grade REST API test cases for:
+
+  Endpoint:
+  {api_details['endpoint']}
+
+  Method:
+  {api_details['method']}
+
+  Parameters:
+  {json.dumps(api_details['parameters'], indent=2)}
+
+  Request Body:
+  {json.dumps(api_details['request_body'], indent=2)}
+
+  Responses:
+  {json.dumps(api_details['responses'], indent=2)}
+
+  Generate:
+  - Positive test cases
+  - Negative test cases
+  - Boundary test cases
+  - Authentication test cases
+  - Error handling test cases
+  - Classification:
+    - POSITIVE -> Valid inputs, expected flow
+    - NEGATIVE -> Invalid inputs, error handling
+    - BOUNDARY -> Edge values, limits
+  - Do not add any other classification. Stick to the 3 mentioned above
+  - Do not generate excessively long sample values.
+
+  Return ONLY valid JSON.
+
+  Expected JSON format:
+
+  {{
+    "api_scenarios": [
+      {{
+        "title": "",
+        "steps": ["string"],
+        "classification": "",
+        "request_data": {{}},
+        "expected_status_code": "",
+        "expected_result": ""
+      }}
+    ]
+  }}
+  """
+  return prompt

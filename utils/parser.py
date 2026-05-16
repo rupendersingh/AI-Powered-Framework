@@ -8,11 +8,10 @@ def parse_ai_output(raw_output,root_key):
     
     logger.info("Parsing LLM response")
     parsed = extract_json(raw_output)
-    
+
      # Step 2: Ensure top-level is a dictionary
     if not isinstance(parsed,dict):
-        raise ValueError("Invalid LLM response: expected JSON object")
-        logger.error("JSON request failed")
+        logger.error("Invalid LLM response: expected JSON object")
 
      # Step 3: Check required key
     if root_key not in parsed:

@@ -1,0 +1,209 @@
+[
+    {
+        "title": "Valid login with correct credentials",
+        "steps": [
+            "Send POST request to /login with username in query parameter",
+            "Include valid username and password in request body",
+            "Verify response status code is 200",
+            "Verify login successful message"
+        ],
+        "classification": "POSITIVE",
+        "request_data": {
+            "query_params": {
+                "username": "testuser"
+            },
+            "body": {
+                "username": "testuser",
+                "password": "validpass123"
+            }
+        },
+        "expected_status_code": "200",
+        "expected_result": "Login successful"
+    },
+    {
+        "title": "Missing username in query parameter",
+        "steps": [
+            "Send POST request to /login without username query parameter",
+            "Include username and password in request body",
+            "Verify response status code is 401",
+            "Verify unauthorized error message"
+        ],
+        "classification": "NEGATIVE",
+        "request_data": {
+            "query_params": {},
+            "body": {
+                "username": "testuser",
+                "password": "validpass123"
+            }
+        },
+        "expected_status_code": "401",
+        "expected_result": "Unauthorized"
+    },
+    {
+        "title": "Missing password in request body",
+        "steps": [
+            "Send POST request to /login with username in query parameter",
+            "Include only username in request body without password",
+            "Verify response status code is 401",
+            "Verify unauthorized error message"
+        ],
+        "classification": "NEGATIVE",
+        "request_data": {
+            "query_params": {
+                "username": "testuser"
+            },
+            "body": {
+                "username": "testuser"
+            }
+        },
+        "expected_status_code": "401",
+        "expected_result": "Unauthorized"
+    },
+    {
+        "title": "Wrong credentials provided",
+        "steps": [
+            "Send POST request to /login with username in query parameter",
+            "Include incorrect username or password in request body",
+            "Verify response status code is 401",
+            "Verify unauthorized error message"
+        ],
+        "classification": "NEGATIVE",
+        "request_data": {
+            "query_params": {
+                "username": "testuser"
+            },
+            "body": {
+                "username": "testuser",
+                "password": "wrongpassword"
+            }
+        },
+        "expected_status_code": "401",
+        "expected_result": "Unauthorized"
+    },
+    {
+        "title": "Username with single character",
+        "steps": [
+            "Send POST request to /login with single character username in query",
+            "Include single character username and valid password in body",
+            "Verify response status code is 200 or 401 based on system rules",
+            "Verify appropriate response"
+        ],
+        "classification": "BOUNDARY",
+        "request_data": {
+            "query_params": {
+                "username": "a"
+            },
+            "body": {
+                "username": "a",
+                "password": "pass123"
+            }
+        },
+        "expected_status_code": "200",
+        "expected_result": "Login successful or Unauthorized"
+    },
+    {
+        "title": "Empty username in query parameter",
+        "steps": [
+            "Send POST request to /login with empty username in query",
+            "Include valid credentials in request body",
+            "Verify response status code is 401",
+            "Verify unauthorized error message"
+        ],
+        "classification": "NEGATIVE",
+        "request_data": {
+            "query_params": {
+                "username": ""
+            },
+            "body": {
+                "username": "testuser",
+                "password": "validpass123"
+            }
+        },
+        "expected_status_code": "401",
+        "expected_result": "Unauthorized"
+    },
+    {
+        "title": "SQL injection attempt in username",
+        "steps": [
+            "Send POST request to /login with SQL injection string in query username",
+            "Include malicious payload in request body username",
+            "Verify response status code is 401",
+            "Verify unauthorized error message"
+        ],
+        "classification": "NEGATIVE",
+        "request_data": {
+            "query_params": {
+                "username": "admin' OR '1'='1"
+            },
+            "body": {
+                "username": "admin' OR '1'='1",
+                "password": "anypassword"
+            }
+        },
+        "expected_status_code": "401",
+        "expected_result": "Unauthorized"
+    },
+    {
+        "title": "Username with special characters",
+        "steps": [
+            "Send POST request to /login with special characters in username query",
+            "Include special characters in request body username",
+            "Verify response status code is 200 or 401 based on system rules",
+            "Verify appropriate response"
+        ],
+        "classification": "BOUNDARY",
+        "request_data": {
+            "query_params": {
+                "username": "test@user!"
+            },
+            "body": {
+                "username": "test@user!",
+                "password": "validpass123"
+            }
+        },
+        "expected_status_code": "200",
+        "expected_result": "Login successful or Unauthorized"
+    },
+    {
+        "title": "Very long username string",
+        "steps": [
+            "Send POST request to /login with maximum length username in query",
+            "Include very long username in request body",
+            "Verify response status code is 200 or 401 based on system rules",
+            "Verify appropriate response"
+        ],
+        "classification": "BOUNDARY",
+        "request_data": {
+            "query_params": {
+                "username": "a123456789b123456789c123456789d123456789e123456789f123456789g123456789h123456789i123456789j123456789k123456789l123456789"
+            },
+            "body": {
+                "username": "a123456789b123456789c123456789d123456789e123456789f123456789g123456789h123456789i123456789j123456789k123456789l123456789",
+                "password": "validpass123"
+            }
+        },
+        "expected_status_code": "200",
+        "expected_result": "Login successful or Unauthorized"
+    },
+    {
+        "title": "XSS attempt in username",
+        "steps": [
+            "Send POST request to /login with XSS script in query username",
+            "Include XSS payload in request body username",
+            "Verify response status code is 401",
+            "Verify unauthorized error message"
+        ],
+        "classification": "NEGATIVE",
+        "request_data": {
+            "query_params": {
+                "username": "<script>alert('xss')</script>"
+            },
+            "body": {
+                "username": "<script>alert('xss')</script>",
+                "password": "validpass123"
+            }
+        },
+        "expected_status_code": "401",
+        "expected_result": "Unauthorized"
+    }
+]
